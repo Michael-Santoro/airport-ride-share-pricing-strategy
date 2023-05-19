@@ -131,11 +131,11 @@ class driver_env_arr():
     Setting train mode to 'False' will complete a single month and return profit for that month.
     
     '''
-    def __init__(self, n_drivers=1000, train_mode=True, max_riders=1e4, add_riders=1e3):
+    def __init__(self, n_drivers=1000, train_mode=True, max_riders=1e4, activated_riders=1e3):
         self.n_drivers = n_drivers
         self.train_mode = train_mode
         self.max_riders = max_riders
-        self.add_riders = add_riders
+        self.riders_activated = activated_riders
         self.total_riders = 0
         self.fit_model()
     
@@ -189,6 +189,7 @@ class driver_env_arr():
      
         ## Calc Profit
         reward = 30-action
+        reward = reward.reshape(reward.shape[1],)
 
         ## Get Drivers Choice
         driver_accepted = self.driver_desc(action)
@@ -196,8 +197,7 @@ class driver_env_arr():
         self.states = self.states[driver_accepted]
   
         ## Get New Lambda
-        self.lam = self.sample_poisson(self.states[:,1])
-
+        self.states[:,1] = np.random.poisson(self.states[:,1])
         ## Drops any states with lam = 0
         self.states = self.states[self.states[:,1] != 0]
         return np.sum(reward)
@@ -205,8 +205,10 @@ class driver_env_arr():
     def add_riders(self,month):
         if self.total_riders >= self.max_riders:
             return self.states
-        m = np.zeros((self.add_riders,month))
-        lam = np.ones((self.add_riders,1))
+        self.total_riders += self.riders_activated
+        m = np.ones((int(self.riders_activated),1))
+        m = month*m
+        lam = np.ones((int(self.riders_activated),1))
         lam = np.random.poisson(lam)
         states = np.hstack((m, lam))
         states = states[states[:,1] != 0]
