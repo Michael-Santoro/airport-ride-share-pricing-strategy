@@ -1,8 +1,8 @@
 import numpy as np
 import random
 from collections import namedtuple, deque
-
-from model import QNetwork
+import pdb
+from .model import QNetwork
 
 import torch
 import torch.nn.functional as F
@@ -71,9 +71,9 @@ class Agent():
 
         # Epsilon-greedy action selection
         if random.random() > eps:
-            return np.argmax(action_values.cpu().data.numpy())
+            return action_values.cpu().data.numpy()
         else:
-            return random.choice(np.arange(self.action_size))
+            return np.random.rand(1) * 2 - 1
 
     def learn(self, experiences, gamma):
         """Update value parameters using given batch of experience tuples.

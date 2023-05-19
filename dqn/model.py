@@ -25,4 +25,4 @@ class QNetwork(nn.Module):
         """Build a network that maps state -> action values."""
         x = F.relu(self.fc1(state))
         x = F.relu(self.fc2(x))
-        return self.fc3(x)
+        return torch.tanh(self.fc3(x))
