@@ -165,9 +165,11 @@ class driver_env_arr():
         self.lr = lr
 
     def driver_desc(self, price):
-        pdb.set_trace()
-        price = price.reshape(price.shape[1],)
-        return np.any(np.random.choice([False, True], size=self.n_drivers, p=self.lr.predict_proba(price)),axis=0)
+        def choice(p):
+            return np.random.choice([False, True], size=self.n_drivers, p=p)
+        price = price.reshape(price.shape[1],1)
+        choices = np.apply_along_axis(choice, 1, self.lr.predict_proba(price))
+        return np.any(choices,axis=1)
     
 
     def reset(self, month=0, lam=1, riders=1000):
