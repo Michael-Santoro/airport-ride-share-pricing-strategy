@@ -77,14 +77,12 @@ class driver_env():
         return [self.month,self.lam]
     
     def calc_reward_buffer(self,buffer):
-        pdb.set_trace()
         old_reward = [i[0] for i in buffer]
 
         new_reward = [sum(old_reward[i:]) for i in range(len(old_reward))]
 
         for j in range(len(buffer)):
             buffer[j][0] = new_reward[j]
-        pdb.set_trace()
         return buffer
 
     def step(self,action):
@@ -100,7 +98,6 @@ class driver_env():
             ## Get Drivers Choice
             driver_accepted = self.driver_desc(action[0])
 
-            pdb.set_trace()
             if not driver_accepted:
                 buffer.append([0,np.array([self.month,0]),True])
                 return self.calc_reward_buffer(buffer)
@@ -116,7 +113,6 @@ class driver_env():
                 if buffer:
                     return self.calc_reward_buffer(buffer)
                 return [[reward,np.array([self.month,self.lam]),True]]
-            pdb.set_trace()
             buffer.append([reward,np.array([self.month,self.lam]),False])
 
 class driver_env_arr():

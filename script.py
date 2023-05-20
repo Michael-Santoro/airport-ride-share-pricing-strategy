@@ -1,4 +1,6 @@
-import pdb
+import os
+os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
+
 import numpy as np
 
 from env.driver import driver_env
@@ -37,9 +39,6 @@ def train(n_episodes=1e5, eps_start=1.0, eps_end=0.01, eps_decay=0.995):
             next_state = entry[1]
             done = entry[2]
             agent.step(state, action, reward, next_state, done)
-        state = next_state
-        if done:
-            break 
         eps = max(eps_end, eps_decay*eps) # decrease epsilon
 
     torch.save(agent.qnetwork_local.state_dict(), 'checkpoint.pth')

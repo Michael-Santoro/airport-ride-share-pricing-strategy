@@ -87,11 +87,16 @@ class Agent():
 
         # Get max predicted Q values (for next states) from target model
         Q_targets_next = self.qnetwork_target(next_states).detach().max(1)[0].unsqueeze(1)
+
+        Q_targets_next = ((Q_targets_next + 1) / (1 + 1)) * 30
         # Compute Q targets for current states 
         Q_targets = rewards + (gamma * Q_targets_next * (1 - dones))
 
         # Get expected Q values from local model
-        Q_expected = self.qnetwork_local(states).gather(1, actions)
+        _pred = self.qnetwork_local(states)
+        _pred = ((_pred + 1) / (1 + 1)) * 30
+        Q_expected = _pred.gather(0, actions)
+        
 
         # Compute loss
         loss = F.mse_loss(Q_expected, Q_targets)
@@ -144,7 +149,6 @@ class ReplayBuffer:
     def sample(self):
         """Randomly sample a batch of experiences from memory."""
         experiences = random.sample(self.memory, k=self.batch_size)
-
         states = torch.from_numpy(np.vstack([e.state for e in experiences if e is not None])).float().to(device)
         actions = torch.from_numpy(np.vstack([e.action for e in experiences if e is not None])).long().to(device)
         rewards = torch.from_numpy(np.vstack([e.reward for e in experiences if e is not None])).float().to(device)
