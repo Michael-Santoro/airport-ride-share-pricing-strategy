@@ -163,12 +163,14 @@ class driver_env_arr():
     def driver_desc(self, price):
         def choice(p):
             return np.random.choice([False, True], size=self.n_drivers, p=p)
-        price = price.reshape(price.shape[1],1)
+        # price = price.reshape(price.shape[1],1)
+        price = price.reshape(price.shape[0],1)
         choices = np.apply_along_axis(choice, 1, self.lr.predict_proba(price))
         return np.any(choices,axis=1)
     
 
     def reset(self, month=0, lam=1, riders=1000):
+        self.total_riders = 0
         self.total_riders += riders
         month = np.zeros((riders,1))
         lam = np.ones((riders,1))
@@ -185,8 +187,8 @@ class driver_env_arr():
      
         ## Calc Profit
         reward = 30-action
-        reward = reward.reshape(reward.shape[1],)
-
+        # reward = reward.reshape(reward.shape[1],)
+        reward = reward.reshape(reward.shape[0],)
         ## Get Drivers Choice
         driver_accepted = self.driver_desc(action)
         reward = reward[driver_accepted]
@@ -200,7 +202,7 @@ class driver_env_arr():
     
     def add_riders(self,month):
         if self.total_riders >= self.max_riders:
-            return self.states
+            return self.states,False
         self.total_riders += self.riders_activated
         m = np.ones((int(self.riders_activated),1))
         m = month*m
@@ -209,7 +211,7 @@ class driver_env_arr():
         states = np.hstack((m, lam))
         states = states[states[:,1] != 0]
         self.states = np.vstack((self.states, states))
-        return self.states
+        return self.states, True
 
 
 
